@@ -1,0 +1,6 @@
+{
+  "name": "@hd-enterprise/astronomy-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ephemeris & perhitungan posisi planet — diisi di Fase 5"
+}
