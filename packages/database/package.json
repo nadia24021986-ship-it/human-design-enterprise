@@ -1,0 +1,6 @@
+{
+  "name": "@hd-enterprise/database",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Skema database, migration, dan generated types — diisi di Fase 2"
+}
