@@ -1,0 +1,6 @@
+{
+  "name": "@hd-enterprise/hd-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Logika perhitungan Human Design (Type, Authority, Profile, dll) — diisi di Fase 6"
+}
