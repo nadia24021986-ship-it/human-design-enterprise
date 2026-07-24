@@ -49,7 +49,7 @@ export async function registerAction(
   }
 
   const supabase = createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -63,6 +63,25 @@ export async function registerAction(
     }
     return { success: false, message: 'Gagal mendaftar. Coba lagi.' };
   }
+
+  if (!data.session) {
+    return {
+      success: false,
+      message:
+        'Akun dibuat, tapi butuh verifikasi email dulu sebelum bisa login. Cek inbox kamu.',
+    };
+  }
+
+  // Jaga-jaga kalau trigger auto-create profil belum sempat jalan
+  await supabase.from('hd_users').upsert(
+    {
+      id: data.user!.id,
+      email: data.user!.email!,
+      full_name: fullName,
+      role: 'user',
+    },
+    { onConflict: 'id', ignoreDuplicates: true }
+  );
 
   revalidatePath('/', 'layout');
   redirect(`/${locale}/dashboard`);
@@ -133,11 +152,30 @@ export async function getCurrentUser() {
 
   if (!user) return null;
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('hd_users')
     .select('id, email, full_name, role, is_active')
     .eq('id', user.id)
     .single();
+
+  // Self-heal: kalau profil belum ada (trigger gagal/telat), buat sekarang
+  if (!profile) {
+    const { data: newProfile } = await supabase
+      .from('hd_users')
+      .upsert(
+        {
+          id: user.id,
+          email: user.email!,
+          full_name: user.user_metadata?.full_name ?? user.email,
+          role: 'user',
+        },
+        { onConflict: 'id' }
+      )
+      .select('id, email, full_name, role, is_active')
+      .single();
+
+    profile = newProfile;
+  }
 
   if (!profile) return null;
 
@@ -148,4 +186,4 @@ export async function getCurrentUser() {
     role: profile.role,
     isActive: profile.is_active,
   };
-    }
+      }
