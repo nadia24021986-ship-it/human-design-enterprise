@@ -4,8 +4,8 @@ const withNextIntl = require('next-intl/plugin')('./i18n/request.ts');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  outputFileTracingRoot: path.join(__dirname, '../../'),
   experimental: {
+    outputFileTracingRoot: path.join(__dirname, '../../'),
     serverActions: {
       bodySizeLimit: '2mb',
     },
